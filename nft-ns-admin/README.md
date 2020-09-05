@@ -28,29 +28,30 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`nft-ns-admin hello`](#nft-ns-admin-hello)
+* [`nft-ns-admin create`](#nft-ns-admin-create)
 * [`nft-ns-admin help [COMMAND]`](#nft-ns-admin-help-command)
 * [`nft-ns-admin list`](#nft-ns-admin-list)
 * [`nft-ns-admin register`](#nft-ns-admin-register)
 * [`nft-ns-admin tld`](#nft-ns-admin-tld)
+* [`nft-ns-admin transfer`](#nft-ns-admin-transfer)
 
-## `nft-ns-admin hello`
+## `nft-ns-admin create`
 
-Describe the command here
+Create new NFT NS register
 
 ```
 USAGE
-  $ nft-ns-admin hello
+  $ nft-ns-admin create
 
 OPTIONS
-  -n, --name=name  name to print
+  -q, --qrcode  display wallet QRCode
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  Create config directories, wallet etc.
 ```
 
-_See code: [src/commands/hello.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/hello.js)_
+_See code: [src/commands/create.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/create.js)_
 
 ## `nft-ns-admin help [COMMAND]`
 
@@ -71,47 +72,73 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0
 
 ## `nft-ns-admin list`
 
-Describe the command here
+List all domains
 
 ```
 USAGE
   $ nft-ns-admin list
 
 OPTIONS
-  -n, --name=name  name to print
+  -s, --sync       refresh list from the blockchain
+  -t, --temp       include also temporary TLDs
+  -u, --user=user  (TODO) list user names in this TLD
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  If TLD name is provided, list user domain in this TLD.
+  Else list all registered TLDs.
 ```
 
 _See code: [src/commands/list.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/list.js)_
 
 ## `nft-ns-admin register`
 
-Describe the command here
+Register new name in given TLD
 
 ```
 USAGE
   $ nft-ns-admin register
 
 OPTIONS
-  -n, --name=name  name to print
+  -n, --name=name    new name to register
+  -o, --owner=owner  SLP address of the owner
+  -t, --tld=tld      TLD to register name in
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  Nme should be still not registered.
+  Do not add TLD (so 'user', not 'user.bch')
 ```
 
 _See code: [src/commands/register.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/register.js)_
 
 ## `nft-ns-admin tld`
 
-Describe the command here
+Register new Top Level Domain (TLD)
 
 ```
 USAGE
   $ nft-ns-admin tld
+
+OPTIONS
+  -n, --name=name  new TLD name to register
+  -t, --temp       temporary TLD - _tns prefix
+
+DESCRIPTION
+  ...
+  TLD should be still not registered.
+  No need to start with dot (so 'bch', not '.bch')
+```
+
+_See code: [src/commands/tld.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/tld.js)_
+
+## `nft-ns-admin transfer`
+
+Describe the command here
+
+```
+USAGE
+  $ nft-ns-admin transfer
 
 OPTIONS
   -n, --name=name  name to print
@@ -121,5 +148,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/tld.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/tld.js)_
+_See code: [src/commands/transfer.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/transfer.js)_
 <!-- commandsstop -->
