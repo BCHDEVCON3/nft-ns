@@ -12,6 +12,17 @@ const bchjs = new BCHJS({
 })
 
 class Util {
+  async validAddress(address) {
+    try {
+      const legacyAddress = bchjs.SLP.Address.toLegacyAddress(address)
+      const check = await bchjs.Util.validateAddress(legacyAddress)
+      return check.isvalid
+    } catch (error) {
+      console.error('Error in findBiggestUtxo: ', error)
+      return false
+    }
+  }
+
   async findBiggestUtxo (utxos) {
     try {
       let largestAmount = 0
@@ -203,8 +214,58 @@ class Util {
       if (tokenUtxos.length === 0) {
         throw new Error('No token UTXOs for the specified name could be found.')
       }
-      console.log(`tokenUtxos: ${JSON.stringify(tokenUtxos, null, 2)}`)
-      return {}
+      const slpSendObj = bchjs.SLP.NFT1.generateNFTChildSendOpReturn(tokenUtxos, 1)
+      const slpData = slpSendObj.script
+      const utxo = await this.findBiggestUtxo(utxos)
+      // build transaction
+      const transactionBuilder = new bchjs.TransactionBuilder()
+      const originalAmount = utxo.value
+      transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos)
+      // add each token UTXO as an input.
+      for (let i = 0; i < tokenUtxos.length; i++) {
+        transactionBuilder.addInput(tokenUtxos[i].tx_hash, tokenUtxos[i].tx_pos)
+      }
+      const txFee = 550
+      const dust = 546
+      const remainder = originalAmount - txFee - (2 * dust)
+      transactionBuilder.addOutput(slpData, 0)
+      // Send dust transaction representing tokens being sent.
+      transactionBuilder.addOutput(
+        bchjs.SLP.Address.toLegacyAddress(owner),
+        dust
+      )
+      // Return any token change back to the sender.
+      if (slpSendObj.outputs > 1) {
+        transactionBuilder.addOutput(
+          bchjs.SLP.Address.toLegacyAddress(walletInfo.slpAddress),
+          dust
+        )
+      }
+      // Last output: send the BCH change back to the wallet.
+      transactionBuilder.addOutput(walletInfo.legacyAddress, remainder)
+      const keyPair = bchjs.ECPair.fromWIF(walletInfo.WIF)
+      let redeemScript
+      transactionBuilder.sign(
+        0,
+        keyPair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        originalAmount
+      )
+      // Sign each token UTXO being consumed.
+      for (let i = 0; i < tokenUtxos.length; i++) {
+        const thisUtxo = tokenUtxos[i]
+
+        transactionBuilder.sign(
+          1 + i,
+          keyPair,
+          redeemScript,
+          transactionBuilder.hashTypes.SIGHASH_ALL,
+          thisUtxo.value
+        )
+      }
+      const hex = transactionBuilder.build().toHex()
+      return await bchjs.RawTransactions.sendRawTransaction([hex])
     } catch (error) {
       console.error('Error in transferName: ', error)
       console.log(`name: ${name}`)

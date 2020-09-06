@@ -10,7 +10,8 @@ class RegisterCommand extends Command {
     const {flags} = this.parse(RegisterCommand)
     const name = flags.name
     const tld = flags.tld || 'bch'
-    const baton = flags.baton || false
+    // always clone baton if nothing specified
+    const baton = flags.baton || true
     cli.action.start('Fetching data')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     // get domains from configDir/tld.json -- no sync
@@ -35,7 +36,7 @@ class RegisterCommand extends Command {
       this.log(`Baton: https://explorer.bitcoin.com/bch/tx/${batonTxId}`)
     }
     const nameTxId = await util.registerName(name, domainRecords[0], walletInfo)
-    this.log(`Baton: https://explorer.bitcoin.com/bch/tx/${nameTxId}`)
+    this.log(`Name: https://explorer.bitcoin.com/bch/tx/${nameTxId}`)
     cli.action.stop()
   }
 }
