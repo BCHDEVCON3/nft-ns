@@ -18,7 +18,6 @@ class Util {
       const check = await bchjs.Util.validateAddress(legacyAddress)
       return check.isvalid
     } catch (error) {
-      console.error('Error in findBiggestUtxo: ', error)
       return false
     }
   }
