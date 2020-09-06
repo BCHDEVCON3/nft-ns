@@ -7,6 +7,8 @@ Non-Fungible Tokens are great way to represent unique objects. They can be also
 grouped, transfered, burned, which makes them good candidate for implementing
 name service - resolving name to SLP address and the reverse - address to name.
 
+[Youtube video with project demonstration](https://www.youtube.com/watch?v=5GIqjvS24l8)
+
 ## DevCon3 Goals
 
 Two CLI application:
