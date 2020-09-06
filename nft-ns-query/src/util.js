@@ -2,7 +2,9 @@
 // const MAINNET_API = 'https://free-main.fullstack.cash/v3/'
 // if you have JWT token
 const MAINNET_API = 'https://api.fullstack.cash/v3/'
+const SLPDB_API = 'https://slpdb.fountainhead.cash/'
 
+const axios = require('axios')
 const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS({
   restURL: MAINNET_API,
@@ -50,6 +52,82 @@ class Util {
       console.log(`slpAddr: ${address}`)
       throw error
     }
+  }
+
+  async getNFTChildren(groupId) {
+    try {
+      const query = {
+        v: 3,
+        q: {
+          db: ['t'],
+          aggregate: [
+            {
+              $match: {
+                nftParentId: groupId
+              }
+            },
+            {
+              $skip: 0
+            },
+            {
+              $limit: 100
+            }
+          ]
+        }
+      }
+      const queryStr = JSON.stringify(query)
+      const b64 = Buffer.from(queryStr).toString('base64')
+      const url = `${SLPDB_API}q/${b64}`
+      const options = {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json'
+        },
+        url
+      }
+      const result = await axios(options)
+      if (!result.data || !result.data.t) {
+        return {}
+      }
+      return result.data.t
+    } catch (error) {
+      console.error('Error in getNFTChildren: ', error)
+      console.log(`tokenId: ${groupId}`)
+      throw error
+    }
+  }
+
+  async getNameInfo(register, name) {
+    try {
+      let names = await this.getNFTChildren(register)
+      if (!names || names.length === 0) {
+        return {}
+      }
+      let alreadySynced = []
+      names = names.filter(function (n) {
+        const details = n.tokenDetails
+        if (!details || !details.symbol || details.symbol === '' || !details.tokenIdHex) return false
+        if (alreadySynced.includes(details.symbol)) return false // uniq
+        if (details.transactionType === 'GENESIS' &&
+            details.symbol === `_uns.${name}`) {
+          alreadySynced.push(details.symbol)
+          return true
+        }
+        return false
+      })
+      if (names.length === 0) {
+        return {}
+      }
+      return {
+        domain: names[0].tokenDetails.symbol.replace('_uns.', ''),
+        tokenId: names[0].tokenDetails.tokenIdHex
+      }
+    } catch (error) {
+      console.error('Error in getNameInfo: ', error)
+      console.log(`name: ${name}`)
+      throw error
+    }
+
   }
 }
 

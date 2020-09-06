@@ -26,7 +26,7 @@ by given SLP address (example: --address=simpleledger:4daeee...)
 `
 
 NameCommand.flags = {
-  address: flags.string({char: 'a', description: 'SLP address (simpleledger:ss333)', require: true}),
+  address: flags.string({char: 'a', description: 'SLP address (simpleledger:ss333)', required: true})
 }
 
 module.exports = NameCommand
