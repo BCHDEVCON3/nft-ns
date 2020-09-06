@@ -383,7 +383,7 @@ class Util {
     })
   }
 
-  async getNamesInTLD(record) {
+  async getNFTChildren(groupId) {
     try {
       const query = {
         v: 3,
@@ -392,7 +392,7 @@ class Util {
           aggregate: [
             {
               $match: {
-                nftParentId: record.tokenId
+                nftParentId: groupId
               }
             },
             {
@@ -414,16 +414,31 @@ class Util {
         },
         url
       }
-      let alreadySynced = []
       const result = await axios(options)
-      if (!result.data || !result.data.t || result.data.t.length === 0) {
+      if (!result.data || !result.data.t) {
+        return {}
+      }
+      return result.data.t
+    } catch (error) {
+      console.error('Error in getNFTChildren: ', error)
+      console.log(`tokenId: ${groupId}`)
+      throw error
+    }
+
+  }
+
+  async getNamesInTLD(record) {
+    try {
+      let alreadySynced = []
+      const slpdbData = await this.getNFTChildren(record.tokenId)
+      if (slpdbData.length === 0) {
         return {
           tld: record.domain,
           tokenId: record.tokenId,
           names: []
         }
       }
-      const names = result.data.t.filter(function (n) {
+      const names = slpdbData.filter(function (n) {
         const details = n.tokenDetails
         if (!details || !details.symbol || details.symbol === '' || !details.tokenIdHex) return false
         if (alreadySynced.includes(details.symbol)) return false // uniq
