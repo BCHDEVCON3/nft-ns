@@ -16,21 +16,37 @@ Two CLI application:
   - list domains - TLDs only, some TLD domains
   - register user domain inside TLD (example: `zhekov.bch`)
 
-* User Domain Registration Application:
-  - send BCH to some address and get domain NFT back
+* Name service resolver:
+  - return SLP address for given name
+  - return name for given SLP address
+
+## Implementation
+
+Used packages:
+
+* [Oclif: Node.JS Open CLI Framework](https://github.com/oclif/oclif)
+* [bch-js Javascript BCH library](https://github.com/Permissionless-Software-Foundation/bch-js)
+* [Oclif CLI IO](https://github.com/oclif/cli-ux)
+
+The Name service is implemented as two separate independent tools:
+
+* [nft-ns-admin](./nft-ns-admin/) - Administration tool (Register):
+  * Create new TLD register
+  * List all TLDs
+  * List user names in givel TLD
+  * Register new name in given TLD
+  * Transfer user name to different owner
+
+  For more details see [nft-ns-admin documentation](./nft-ns-admin/README.md)
+
+* [nft-ns-query](./nft-ns-query/) - Query tool (Resolver):
+  * Resolve name to SLP address
+  * Reverse resolve SLP address to name
+
+  For more details see [nft-ns-query documentation](./nft-ns-query/README.md)
 
 ## Future plans
 
 * Web interface (at least to check for existance, register and list domains)
-* Change some wallet to support the name based BCH send
-
-## Prototype
-
-All tasks executed 'manually' to show the workflow. Using [PSF NFT bch-js-examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples/tree/master/applications/slp/nft) for all steps:
-
-1. Register `.bch` TLD - done with [create-nft-group](https://github.com/Permissionless-Software-Foundation/bch-js-examples/tree/master/applications/slp/nft/create-nft-group). Implemented as `_ns.bch` NFT group token. The result (TxId): [ac291efc23e5c155771183e6ce58c4e36beec2da21aa7a420b3e77605d6561bf](https://explorer.bitcoin.com/bch/tx/ac291efc23e5c155771183e6ce58c4e36beec2da21aa7a420b3e77605d6561bf)
-2. Register `stoyan.bch` used domain - done with [create-nft-child](https://github.com/Permissionless-Software-Foundation/bch-js-examples/tree/master/applications/slp/nft/create-nft-child). Implemented as `stoyan.bch` NFT child token. The result (TxId): [39e805f1089fb937cec408632a65da0e2fc9c316daf752ec28ba32d6e956eba3](https://explorer.bitcoin.com/bch/tx/39e805f1089fb937cec408632a65da0e2fc9c316daf752ec28ba32d6e956eba3)
-3. Transfer ownership to another address - done with [send-child](https://github.com/Permissionless-Software-Foundation/bch-js-examples/tree/master/applications/slp/nft/send-child). Result: [simpleledger:qrjkthjjsku2qv7ycakyhv828pruv2gfuy636wj0ja](https://explorer.bitcoin.com/bch/address/simpleledger:qrjkthjjsku2qv7ycakyhv828pruv2gfuy636wj0ja) address SLP tokens list.
-4. Register one more domain `zhekov.bch` - done with [mint-nft-group](https://github.com/Permissionless-Software-Foundation/bch-js-examples/tree/master/applications/slp/nft/mint-nft-group), `create-nft-child` and `send-nft-child`. Result [simpleledger:qp9rdq4mffms5xs64f0ek5pqm2z3zycsrq76uq3z57](https://explorer.bitcoin.com/bch/address/simpleledger:qp9rdq4mffms5xs64f0ek5pqm2z3zycsrq76uq3z57) adress SLP tokens list.
-
-For the real application will try to create `.devcon` TLD and register several domains inside.
+* Change [slp-cli-wallet wallet](https://github.com/christroutner/slp-cli-wallet) to support the name based tokens send
+* Meta information (profile picture etc.) for each name - maybe saved to IPFS

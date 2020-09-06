@@ -43,7 +43,7 @@ class RegisterCommand extends Command {
 
 RegisterCommand.description = `Register new name in given TLD
 ...
-Nme should be still not registered.
+Name should be still not registered.
 Do not add TLD (so 'user', not 'user.bch')
 `
 

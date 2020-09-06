@@ -1,81 +1,61 @@
 nft-ns-query
 ============
 
-Query NFT Name Service
+NFT Name Service resolver. Can be used for user name to SLP address queries and for the reverse ones - SLP address to name.
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/nft-ns-query.svg)](https://npmjs.org/package/nft-ns-query)
-[![Downloads/week](https://img.shields.io/npm/dw/nft-ns-query.svg)](https://npmjs.org/package/nft-ns-query)
-[![License](https://img.shields.io/npm/l/nft-ns-query.svg)](https://github.com/zh/nft-ns/blob/master/package.json)
 
 <!-- toc -->
+* [Install](#install)
 * [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
+
+# Install
+
+<!-- install -->
+Clone repository, go to the resolver tool directory and install needed NPM packages:
+
+```sh
+git clone https://github.com/BCHDEVCON3/nft-ns.git
+cd nft-ns-query
+npm install
+```
+
 # Usage
 <!-- usage -->
+Maybe this will become an NPM package but for now all the commands are executed with `./bin/run` from the tool directory
+
 ```sh-session
-$ npm install -g nft-ns-query
-$ nft-ns-query COMMAND
+$ ./bin/run COMMAND
 running command...
-$ nft-ns-query (-v|--version|version)
+$ ./bin/run (-v|--version|version)
 nft-ns-query/0.1.0 darwin-x64 node-v12.16.1
-$ nft-ns-query --help [COMMAND]
+$ ./bin/run --help [COMMAND]
 USAGE
-  $ nft-ns-query COMMAND
+  $ ./bin/run COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`nft-ns-query address`](#nft-ns-query-address)
-* [`nft-ns-query hello`](#nft-ns-query-hello)
 * [`nft-ns-query help [COMMAND]`](#nft-ns-query-help-command)
-* [`nft-ns-query name`](#nft-ns-query-name)
-
-## `nft-ns-query address`
-
-Describe the command here
-
-```
-USAGE
-  $ nft-ns-query address
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/address.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/address.js)_
-
-## `nft-ns-query hello`
-
-Describe the command here
-
-```
-USAGE
-  $ nft-ns-query hello
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/hello.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/hello.js)_
+* [`nft-ns-query address`](#nft-ns-query-address) - name to address resolve
+* [`nft-ns-query name`](#nft-ns-query-name) - address to name resolve
 
 ## `nft-ns-query help [COMMAND]`
 
-display help for nft-ns-query
+Display help for nft-ns-query. You can also get help for every command adding `-h|--help` to it:
+
+```sh
+./bin/run name -h
+
+```
+
 
 ```
 USAGE
-  $ nft-ns-query help [COMMAND]
+  $ ./bin/run help [COMMAND]
 
 ARGUMENTS
   COMMAND  command to show help for
@@ -86,20 +66,58 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
 
-## `nft-ns-query name`
+## `nft-ns-query address`
 
-Describe the command here
+Find SLP address by name.
+
+Information is retreived from the SLPDB tokens information.
+
+Provide full name to `-n|--name` option (`user.bch` - good, `user` - no).
+The provider NFT Group token ID can be specified. If no the default one will be used.
+Provider NFT Group token IDs can be seen in the Admin tool TLD list. 
+
+Some basic checks (TLD existance, user name existence etc.) are also implemented.
 
 ```
 USAGE
-  $ nft-ns-query name
+  $ ./bin/run address -n user.bch
+  $ ./bin/run address -n user.somenew -r a34eqwr5...
 
 OPTIONS
-  -n, --name=name  name to print
+  -n, --name=name          (required) NFT NS name (user.bch)
+  -r, --register=register  NFT NS register tokenId
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  Similar to DNS lookup - will find corresponding SLP address
+  by given NFT Name Service name
+  (example:  '--name=user.bch')
+```
+
+_See code: [src/commands/address.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/address.js)_
+
+
+## `nft-ns-query name`
+
+Find name by SLP address.
+
+Information is retreived from the address tokens UTXO information.
+
+Provide proper SLP address, starting with `simpleledger:` to the `-a|--addr` option.
+
+Some basic checks (adress format etc.) are also implemented.
+
+```
+USAGE
+  $ ./bin/run name -a simpleledger:qrjkt...
+
+OPTIONS
+  -a, --address=address  (required) SLP address (simpleledger:ss333)
+
+DESCRIPTION
+  ...
+  Similar to DNS reverse lookup - find corresponding NFT NS name
+  by given SLP address (example: --address=simpleledger:4daeee...)
 ```
 
 _See code: [src/commands/name.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/name.js)_
