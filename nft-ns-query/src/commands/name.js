@@ -12,7 +12,7 @@ class NameCommand extends Command {
       this.error(`Invalid address: ${address}`)
       return
     }
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const domainNames = await util.getNamesByAddress(address)
     console.log(`Domain Names: ${JSON.stringify(domainNames, null, 2)}`)
     cli.action.stop()

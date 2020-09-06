@@ -11,7 +11,7 @@ class TldCommand extends Command {
     const name = flags.name
     const temp = flags.temp || false
     const prefix = temp === true ? '_tns' : '_ns'
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     // get domains from configDir/tld.json -- no sync
     const domainNames = await util.getTLDNames(walletInfo.cashAddress, this.config.configDir, false)

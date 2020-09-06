@@ -15,7 +15,7 @@ class TransferCommand extends Command {
       this.error(`Invalid owner address: ${owner}`)
       return
     }
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     const transferTxId = await util.transferName(name, owner, walletInfo)
     this.log(`Transfer: https://explorer.bitcoin.com/bch/tx/${transferTxId}`)

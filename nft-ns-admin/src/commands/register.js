@@ -12,7 +12,7 @@ class RegisterCommand extends Command {
     const tld = flags.tld || 'bch'
     // always clone baton if nothing specified
     const baton = flags.baton || true
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     // get domains from configDir/tld.json -- no sync
     const domainNames = await util.getTLDNames(walletInfo.cashAddress, this.config.configDir, false)

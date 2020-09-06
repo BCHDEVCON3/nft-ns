@@ -11,7 +11,7 @@ class ListCommand extends Command {
     const tld = flags.tld || 'all'
     const sync = flags.sync || false
     const temp = flags.temp || false
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     let domainNames = await util.getTLDNames(walletInfo.cashAddress, this.config.configDir, sync, temp)
     if (tld === 'all') {
