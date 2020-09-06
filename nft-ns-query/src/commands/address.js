@@ -12,7 +12,11 @@ class AddressCommand extends Command {
     const register = flags.register || 'ac291efc23e5c155771183e6ce58c4e36beec2da21aa7a420b3e77605d6561bf'
     cli.action.start('Fetching data')
     const nameInfo = await util.getNameInfo(register, name)
-    this.log(JSON.stringify(nameInfo, null, 2))
+    if (nameInfo === {}) {
+      return
+    }
+    const slpAddress = await util.getTokenAddresses(nameInfo.tokenId)
+    this.log(JSON.stringify({slpAddress}, null, 2))
     cli.action.stop()
   }
 }

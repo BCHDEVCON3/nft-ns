@@ -54,6 +54,73 @@ class Util {
     }
   }
 
+  async getTokenAddresses(tokenId) {
+    try {
+      const query = {
+        v: 3,
+        q: {
+          db: ['g'],
+          aggregate: [
+            {
+              $match: {
+                'tokenDetails.tokenIdHex': tokenId
+              }
+            },
+            {
+              $unwind: '$graphTxn.outputs'
+            },
+            {
+              $match: {
+                'graphTxn.outputs.status': 'UNSPENT',
+              }
+            },
+            {
+              $group: {
+                _id: '$graphTxn.outputs.address',
+                slpAmount: {
+                  $sum: '$graphTxn.outputs.slpAmount'
+                }
+              }
+            },
+            {
+              $match: {
+                slpAmount: {
+                  $gt: 0
+                }
+              }
+            }
+          ],
+          limit: 100,
+          skip: 0
+        }
+      }
+      const queryStr = JSON.stringify(query)
+      const b64 = Buffer.from(queryStr).toString('base64')
+      const url = `${SLPDB_API}q/${b64}`
+      const options = {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json'
+        },
+        url
+      }
+      const result = await axios(options)
+      // console.log(`result: ${JSON.stringify(result.data, null, 2)}`)
+      if (!result.data || !result.data.g || result.data.g.length === 0) {
+        return {}
+      }
+      const slpInfo = result.data.g[0]
+      if (slpInfo.slpAmount !== '1') {  // amount > 1 -> Not NFT
+        return ''
+      }
+      return slpInfo._id
+    } catch (error) {
+      console.error('Error in getTokenAddresses: ', error)
+      console.log(`tokenId: ${tokenId}`)
+      throw error
+    }
+  }
+
   async getNFTChildren(groupId) {
     try {
       const query = {
