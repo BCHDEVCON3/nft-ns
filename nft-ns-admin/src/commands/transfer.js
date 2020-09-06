@@ -10,6 +10,11 @@ class TransferCommand extends Command {
     const {flags} = this.parse(TransferCommand)
     const name = flags.name
     const owner = flags.owner
+    const isValid = await util.validAddress(owner)
+    if (isValid === false) {
+      this.error(`Invalid owner address: ${owner}`)
+      return
+    }
     cli.action.start('Fetching data')
     const walletInfo = await fs.readJSON(path.join(this.config.configDir, 'wallet.json'))
     const transferTxId = await util.transferName(name, owner, walletInfo)
