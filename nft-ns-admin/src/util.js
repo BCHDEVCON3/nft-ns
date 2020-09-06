@@ -2,9 +2,11 @@
 // const MAINNET_API = 'https://free-main.fullstack.cash/v3/'
 // if you have JWT token
 const MAINNET_API = 'https://api.fullstack.cash/v3/'
+const SLPDB_API = 'https://slpdb.fountainhead.cash/'
 
 const fs = require('fs')
 const path = require('path')
+const axios = require('axios')
 const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS({
   restURL: MAINNET_API,
@@ -381,7 +383,76 @@ class Util {
     })
   }
 
-  async getTLDNames (addr, configDir, sync = true, temp = false) {
+  async getNamesInTLD(record) {
+    try {
+      const query = {
+        v: 3,
+        q: {
+          db: ['t'],
+          aggregate: [
+            {
+              $match: {
+                nftParentId: record.tokenId
+              }
+            },
+            {
+              $skip: 0
+            },
+            {
+              $limit: 100
+            }
+          ]
+        }
+      }
+      const queryStr = JSON.stringify(query)
+      const b64 = Buffer.from(queryStr).toString('base64')
+      const url = `${SLPDB_API}q/${b64}`
+      const options = {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json'
+        },
+        url
+      }
+      let alreadySynced = []
+      const result = await axios(options)
+      if (!result.data || !result.data.t || result.data.t.length === 0) {
+        return {
+          tld: record.domain,
+          tokenId: record.tokenId,
+          names: []
+        }
+      }
+      const names = result.data.t.filter(function (n) {
+        const details = n.tokenDetails
+        if (!details || !details.symbol || details.symbol === '' || !details.tokenIdHex) return false
+        if (alreadySynced.includes(details.symbol)) return false // uniq
+        if (details.transactionType === 'GENESIS' &&
+            details.symbol.startsWith('_uns.')) {
+          alreadySynced.push(details.symbol)
+          return true
+        }
+        return false
+      })
+      const nftNames =  names.map(function (n) {
+          return {
+            domain: n.tokenDetails.symbol.replace('_uns.', ''),
+            tokenId: n.tokenDetails.tokenIdHex
+          }
+      })
+      const objNames = {
+        tld: record.domain,
+        tokenId: record.tokenId,
+        names: nftNames
+      }
+      return objNames
+    } catch (error) {
+      console.error('Error in getNamesInTLD: ', error)
+      throw error
+    }
+  }
+
+  async getTLDNames(addr, configDir, sync = true, temp = false) {
     try {
       let domainNames = []
       const tldFile = path.join(configDir, 'tld.json')
@@ -416,7 +487,7 @@ class Util {
       domainNames = require(tldFile)
       return domainNames
     } catch (error) {
-      console.error('Error in getDomainNames: ', error)
+      console.error('Error in getTLDNames: ', error)
       console.log(`slpAddr: ${addr}`)
       throw error
     }
