@@ -12,7 +12,7 @@ class NameCommand extends Command {
       this.error(`Invalid address: ${address}`)
       return
     }
-    cli.action.start('Fetching data')
+    cli.action.start('Blockchain access')
     const domainNames = await util.getNamesByAddress(address)
     console.log(`Domain Names: ${JSON.stringify(domainNames, null, 2)}`)
     cli.action.stop()
@@ -26,7 +26,7 @@ by given SLP address (example: --address=simpleledger:4daeee...)
 `
 
 NameCommand.flags = {
-  address: flags.string({char: 'a', description: 'SLP address (simpleledger:ss333)', require: true}),
+  address: flags.string({char: 'a', description: 'SLP address (simpleledger:ss333)', required: true})
 }
 
 module.exports = NameCommand

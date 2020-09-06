@@ -424,7 +424,6 @@ class Util {
       console.log(`tokenId: ${groupId}`)
       throw error
     }
-
   }
 
   async getNamesInTLD(record) {
@@ -449,11 +448,11 @@ class Util {
         }
         return false
       })
-      const nftNames =  names.map(function (n) {
-          return {
-            domain: n.tokenDetails.symbol.replace('_uns.', ''),
-            tokenId: n.tokenDetails.tokenIdHex
-          }
+      const nftNames = names.map(function (n) {
+        return {
+          domain: n.tokenDetails.symbol.replace('_uns.', ''),
+          tokenId: n.tokenDetails.tokenIdHex
+        }
       })
       const objNames = {
         tld: record.domain,
