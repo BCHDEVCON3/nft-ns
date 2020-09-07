@@ -6,17 +6,44 @@ const AppUtil = require('../util.js')
 const util = new AppUtil()
 
 class AddressCommand extends Command {
-  async run() {
+  async registerForTLD(tld) {
+    try {
+      let tldInfo = await fs.readJSON(path.join(this.config.configDir, 'tld.json'))
+      tldInfo = tldInfo.filter(function (n) {
+        if (n.domain === tld) return true
+        return false
+      })
+      if (!tldInfo || tldInfo === undefined || tldInfo.length === 0) return ''
+      return tldInfo[0].tokenId
+    } catch (error) {
+      this.log(`getRegisters: ${error}`)
+    }
+  }
+
+  async run () {
     const {flags} = this.parse(AddressCommand)
     const name = flags.name
-    const register = flags.register || 'ac291efc23e5c155771183e6ce58c4e36beec2da21aa7a420b3e77605d6561bf'
+    let register = flags.register
     cli.action.start('Blockchain access')
-    const nameInfo = await util.getNameInfo(register, name)
+    if (!register) {
+      register = name.split('.').pop()
+    }
+    const tldRegister = await this.registerForTLD(register)
+    const registerTokenId = (tldRegister === '') ? register : tldRegister
+    const nameInfo = await util.getNameInfo(registerTokenId, name)
     if (nameInfo === {}) {
       return
     }
     const slpAddress = await util.getTokenAddresses(nameInfo.tokenId)
-    this.log(JSON.stringify({slpAddress}, null, 2))
+    let domainNames = await util.getNamesByAddress(slpAddress)
+    domainNames = domainNames.map(function (d) {
+      return d.domain
+    })
+    if (domainNames.includes(name)) {
+      this.log(JSON.stringify({slpAddress}, null, 2))
+    } else {
+      this.error(`Invalid resolver: ${registerTokenId} ${name} -> ${slpAddress}`)
+    }
     cli.action.stop()
   }
 }
@@ -30,7 +57,7 @@ by given NFT Name Service name
 
 AddressCommand.flags = {
   name: flags.string({char: 'n', description: 'NFT NS name (user.bch)', required: true}),
-  register: flags.string({char: 'r', description: 'NFT NS register tokenId'})
+  register: flags.string({char: 'r', description: 'NFT NS register TLD (bch)'})
 }
 
 module.exports = AddressCommand
