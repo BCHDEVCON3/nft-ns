@@ -502,7 +502,7 @@ class Util {
       return domainNames
     } catch (error) {
       console.error('Error in getTLDNames: ', error)
-      console.log(`slpAddr: ${addr}`)
+      console.log(`BCH Addr: ${addr}`)
       throw error
     }
   }

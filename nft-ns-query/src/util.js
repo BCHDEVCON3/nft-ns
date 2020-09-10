@@ -4,6 +4,8 @@
 const MAINNET_API = 'https://api.fullstack.cash/v3/'
 const SLPDB_API = 'https://slpdb.fountainhead.cash/'
 
+const fs = require('fs')
+const path = require('path')
 const axios = require('axios')
 const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS({
@@ -194,7 +196,41 @@ class Util {
       console.log(`name: ${name}`)
       throw error
     }
+  }
 
+  async getTLDNames(addr, configDir) {
+    try {
+      let domainNames = []
+      const tldFile = path.join(configDir, 'tld.json')
+      const result = await bchjs.Electrumx.utxo(addr)
+      if (result.utxos.length === 0) throw new Error('No Domain Names UTXOs found.')
+      let tokenUtxos = await bchjs.SLP.Utils.tokenUtxoDetails(result.utxos)
+      let alreadySynced = []
+      tokenUtxos = tokenUtxos.filter(function (utxo) {
+        if (!utxo || !utxo.tokenTicker) return false
+        if (alreadySynced.includes(utxo.tokenTicker)) return false // uniq
+        if (utxo.tokenTicker.startsWith('_ns.')) {
+          alreadySynced.push(utxo.tokenTicker)
+          return true
+        }
+        return false
+      })
+      // console.log(`tokenUtxos: ${JSON.stringify(tokenUtxos, null, 2)}`)
+      domainNames = tokenUtxos.map(function (utxo) {
+        return {
+          domain: utxo.tokenTicker.replace('_ns.', ''),
+          name: utxo.tokenName,
+          tokenId: utxo.tokenId
+        }
+      })
+      fs.writeFileSync(tldFile, JSON.stringify(domainNames, null, 2))
+      domainNames = require(tldFile)
+      return domainNames
+    } catch (error) {
+      console.error('Error in getTLDNames: ', error)
+      console.log(`BCH Addr: ${addr}`)
+      throw error
+    }
   }
 }
 
