@@ -42,6 +42,7 @@ USAGE
 * [`nft-ns-query help [COMMAND]`](#nft-ns-query-help-command)
 * [`nft-ns-query address`](#nft-ns-query-address) - name to address resolve
 * [`nft-ns-query name`](#nft-ns-query-name) - address to name resolve
+* [`nft-ns-query registers`](#nft-ns-query-registers) - get list of TLD registers
 
 ## `nft-ns-query help [COMMAND]`
 
@@ -74,7 +75,7 @@ Information is retreived from the SLPDB tokens information.
 
 Provide full name to `-n|--name` option (`user.bch` - good, `user` - no).
 The provider NFT Group token ID can be specified. If no the default one will be used.
-Provider NFT Group token IDs can be seen in the Admin tool TLD list. 
+Provider NFT Group token IDs can be seen in the Admin tool TLD list.
 
 Some basic checks (TLD existance, user name existence etc.) are also implemented.
 
@@ -121,4 +122,30 @@ DESCRIPTION
 ```
 
 _See code: [src/commands/name.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/name.js)_
+
+## `nft-ns-query registers`
+
+Get list of TLD registers
+
+Provide BCH address for the account, holding TLD addresses.
+Will generate JSON file in the config directory.
+
+Information is retreived from the address tokens UTXO information.
+
+```
+USAGE
+  $ ./bin/run registers
+  $ ./bin/run registers -b bitcoincash:qrjkt...
+
+OPTIONS
+  -b, --bch=bch  BCH address of the account with registers
+
+DESCRIPTION
+  ...
+  Provide BCH address for the account, holding TLD addresses.
+  Will generate JSON file in the config directory.
+```
+
+_See code: [src/commands/registers.js](https://github.com/zh/nft-ns/blob/v0.1.0/src/commands/registers.js)_
+
 <!-- commandsstop -->
